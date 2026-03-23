@@ -3,23 +3,29 @@ import os
 import platform
 
 
-def get_ffmpeg_binary():
-    """Get the path to the appropriate FFmpeg binary."""
-    # __file__ is the path to the current file (__init__.py)
-    # We loop back to the directory of __init__.py and build the path from there
+def _get_binary(name: str) -> str:
+    """Get the path to the appropriate binary for the current architecture."""
     package_dir = os.path.abspath(os.path.dirname(__file__))
 
     arch = platform.machine()
-    if arch == 'x86_64':  # x86_64 systems (Intel and some AMD processors)
-        binary_name = 'ffmpeg'  # or 'ffmpeg.exe' on Windows
-        binary_path = os.path.join(package_dir, 'ffmpeg_binaries', 'x86', binary_name)
-    elif arch == 'arm64':  # ARM systems (like Apple M1)
-        binary_name = 'ffmpeg'  # or 'ffmpeg.exe' on Windows
-        binary_path = os.path.join(package_dir, 'ffmpeg_binaries', 'arm', binary_name)
+    if arch == 'x86_64':
+        binary_path = os.path.join(package_dir, 'ffmpeg_binaries', 'x86', name)
+    elif arch == 'arm64':
+        binary_path = os.path.join(package_dir, 'ffmpeg_binaries', 'arm', name)
     else:
         raise ValueError(f"Unsupported architecture: {arch}")
 
     if not os.path.isfile(binary_path):
-        raise FileNotFoundError(f"FFmpeg binary not found for the architecture at {binary_path}")
+        raise FileNotFoundError(f"Binary '{name}' not found for the architecture at {binary_path}")
 
     return binary_path
+
+
+def get_ffmpeg_binary():
+    """Get the path to the appropriate FFmpeg binary."""
+    return _get_binary('ffmpeg')
+
+
+def get_ffprobe_binary():
+    """Get the path to the appropriate FFprobe binary."""
+    return _get_binary('ffprobe')
